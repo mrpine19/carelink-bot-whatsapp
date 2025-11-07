@@ -6,7 +6,8 @@ class SemanticSearcher:
     def __init__(self, pdf_path):
         self.pdf_processor = PDFProcessor(pdf_path)
         self.documents = self.pdf_processor.create_knowledge_base()
-        self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        # MODELO ALTERADO: 'all-MiniLM-L6-v2' é muito mais leve e ideal para ambientes com pouca memória.
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
         self.embeddings = self._create_embeddings()
     
     def _create_embeddings(self):
