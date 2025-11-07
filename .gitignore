@@ -1,0 +1,28 @@
+# Python Virtual Environment
+/venv
+/Lib
+/Scripts
+/Include
+/tcl
+pyvenv.cfg
+*.env
+
+# Python cache & artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+/build/
+/dist/
+*.egg-info
+
+# IDE configuration
+.idea/
+.vscode/
+
+# Secrets - Use environment variables in production
+config/my_keys.py
+
+# OS-specific
+.DS_Store
+Thumbs.db
