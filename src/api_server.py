@@ -14,11 +14,15 @@ if not MARITACA_API_KEY or not GEMINI_API_KEY:
 # --- CONFIGURAÇÃO E INICIALIZAÇÃO DO BOT ---
 print("Inicializando o CareLinkBot para o servidor API...")
 
-# Define o caminho para o arquivo de embeddings pré-calculados
-EMBEDDINGS_FILE_PATH = "data/manual_embeddings.pkl"
+# --- CAMINHO ABSOLUTO E ROBUSTO PARA O ARQUIVO DE EMBEDDINGS ---
+# Isso garante que o caminho funcione, não importa de onde o script seja chamado.
+# 1. Pega o diretório do arquivo atual (src)
+# 2. Sobe um nível para a raiz do projeto
+# 3. Monta o caminho para o arquivo de dados
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+EMBEDDINGS_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "manual_embeddings.pkl")
 
 # Instanciamos o bot UMA ÚNICA VEZ quando o servidor inicia.
-# Agora, em vez do caminho do PDF, passamos o caminho do arquivo de embeddings.
 bot = CareLinkBot(
     maritaca_api_key=MARITACA_API_KEY,
     gemini_api_key=GEMINI_API_KEY,
