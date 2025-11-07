@@ -1,16 +1,19 @@
 from src.bots.maritaca_client import MaritacaClient
 from src.bots.gemini_analyzer import GeminiAnalyzer
 from src.services.appointment_manager import AppointmentManager
-from src.services.pdf_processor import PDFProcessor
 from src.utils.semantic_searcher import SemanticSearcher
 import re
 
 class CareLinkBot:
-    def __init__(self, maritaca_api_key, gemini_api_key, pdf_path):
+    def __init__(self, maritaca_api_key, gemini_api_key, embeddings_path):
+        """
+        Inicializa o bot com as chaves de API e o caminho para os embeddings pré-calculados.
+        """
         self.maritaca_client = MaritacaClient(api_key=maritaca_api_key)
         self.gemini_analyzer = GeminiAnalyzer(api_key=gemini_api_key)
         self.appointment_manager = AppointmentManager()
-        self.searcher = SemanticSearcher(pdf_path)
+        # O SemanticSearcher agora usa o arquivo de embeddings, consumindo muito menos memória.
+        self.searcher = SemanticSearcher(embeddings_path)
     
     def handle_message(self, patient_id, message, image_data=None):
         # Lógica de verificação de saudações e agradecimentos

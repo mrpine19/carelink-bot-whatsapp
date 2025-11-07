@@ -14,11 +14,15 @@ if not MARITACA_API_KEY or not GEMINI_API_KEY:
 # --- CONFIGURAÇÃO E INICIALIZAÇÃO DO BOT ---
 print("Inicializando o CareLinkBot para o servidor API...")
 
+# Define o caminho para o arquivo de embeddings pré-calculados
+EMBEDDINGS_FILE_PATH = "data/manual_embeddings.pkl"
+
 # Instanciamos o bot UMA ÚNICA VEZ quando o servidor inicia.
+# Agora, em vez do caminho do PDF, passamos o caminho do arquivo de embeddings.
 bot = CareLinkBot(
     maritaca_api_key=MARITACA_API_KEY,
     gemini_api_key=GEMINI_API_KEY,
-    pdf_path="data/manuals/Manual-Detalhado-Portal-do-Paciente.pdf"
+    embeddings_path=EMBEDDINGS_FILE_PATH
 )
 
 print("CareLinkBot pronto. Servidor API iniciado.")
