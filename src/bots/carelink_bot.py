@@ -1,30 +1,30 @@
 from src.bots.maritaca_client import MaritacaClient
 from src.bots.gemini_analyzer import GeminiAnalyzer
 from src.services.appointment_manager import AppointmentManager
-from src.utils.semantic_searcher import SemanticSearcher
+from src.utils.semantic_searcher import SemanticSearcher # Importa a versão otimizada
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CareLinkBot:
     def __init__(self, maritaca_api_key, gemini_api_key, embeddings_path):
-        """
-        Inicializa o bot com as chaves de API e o caminho para os embeddings pré-calculados.
-        """
+        logger.info("[CareLinkBot] Inicializando componentes...")
         self.maritaca_client = MaritacaClient(api_key=maritaca_api_key)
         self.gemini_analyzer = GeminiAnalyzer(api_key=gemini_api_key)
         self.appointment_manager = AppointmentManager()
-        # O SemanticSearcher agora usa o arquivo de embeddings, consumindo muito menos memória.
+        # O SemanticSearcher agora gerencia o lazy loading internamente
         self.searcher = SemanticSearcher(embeddings_path)
+        logger.info("[CareLinkBot] Componentes inicializados. SemanticSearcher configurado para lazy loading.")
     
     def handle_message(self, patient_id, message, image_data=None):
-        # Lógica de verificação de saudações e agradecimentos
-        # Esta é a LÓGICA CORRIGIDA para ir primeiro
         message_lower = message.lower()
         if any(keyword in message_lower for keyword in ["obrigado", "obrigada", "tchau", "adeus"]):
             return "De nada! Fico feliz em ajudar. Se precisar de algo, é só me chamar. 👋"
         if any(keyword in message_lower for keyword in ["olá", "bom dia", "oi", "ola"]):
             return "Olá! Como posso te ajudar hoje? 🤖"
 
-        # Se não for uma saudação, o bot continua o fluxo normal
+        # A busca semântica agora acionará o lazy loading se ainda não tiver ocorrido
         manual_info = self.searcher.search(message)
         
         if image_data:
@@ -43,13 +43,12 @@ class CareLinkBot:
     def _handle_image_analysis(self, patient_id, image_data, message=""):
         analysis = self.gemini_analyzer.analyze_app_screenshot(image_data)
         extracted_text = self.gemini_analyzer.extract_text_from_image(image_data)
-        manual_solutions = self.searcher.search(extracted_text)
+        manual_solutions = self.searcher.search(extracted_text) # Aciona lazy loading
         
         if manual_solutions:
             context = f"Análise da imagem: {analysis}\n\nSoluções do manual: {' '.join(manual_solutions[:2])}"
         else:
             context = f"Análise da imagem: {analysis}"
-        
         
         response = self.maritaca_client.generate_response(
             f"Um paciente enviou esta screenshot do aplicativo. {message}",
@@ -59,7 +58,6 @@ class CareLinkBot:
         return response
     
     def _handle_text_intent(self, patient_id, message):
-        # Essa função agora só classifica a intenção, pois saudações foram tratadas antes
         intent = self._classify_intent(message)
         
         if "confirmar_consulta" in intent or "lembrete" in intent:
@@ -78,5 +76,4 @@ class CareLinkBot:
         
         Mensagem: {message}
         """
-        
         return self.maritaca_client.generate_response(prompt)

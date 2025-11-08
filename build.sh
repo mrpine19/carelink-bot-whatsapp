@@ -5,8 +5,11 @@ set -e
 echo "--- [BUILD SCRIPT] Iniciando Build ---"
 echo "--- [BUILD SCRIPT] Diretório de Trabalho Atual: $(pwd)"
 
+# Criar diretório para cache do modelo SentenceTransformer
+echo "--- [BUILD SCRIPT] Criando diretório de cache para modelos em /tmp/model_cache ---"
+mkdir -p /tmp/model_cache
+
 echo "--- [BUILD SCRIPT] Listando conteúdo do diretório raiz (recursivamente) ---"
-# O comando 'find' é mais limpo que 'ls -R' para logs
 find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 
 echo "--- [BUILD SCRIPT] Verificando a existência do arquivo de embeddings ---"
@@ -18,8 +21,7 @@ if [ -f "$EMBEDDINGS_PATH" ]; then
 else
     echo "❌ [BUILD SCRIPT] FALHA: Arquivo de embeddings NÃO encontrado em '$EMBEDDINGS_PATH'."
     echo "   Esta é a causa raiz do erro de inicialização. Verifique se o arquivo foi commitado no Git."
-    # O build irá falhar aqui se o arquivo for crítico. Podemos optar por sair com erro.
-    # exit 1 
+    # Não vamos falhar o build aqui, pois o api_server.py lida com isso em modo degradado.
 fi
 
 echo "--- [BUILD SCRIPT] Instalando dependências Python ---"
