@@ -13,16 +13,10 @@ if not MARITACA_API_KEY or not GEMINI_API_KEY:
 # --- CONFIGURAÇÃO E INICIALIZAÇÃO DO BOT ---
 print("Inicializando o CareLinkBot para o servidor API...")
 
-# --- CAMINHO ABSOLUTO E ROBUSTO PARA O AMBIENTE DO RENDER ---
-# O Render define o diretório raiz do projeto em /opt/render/project/src
-# O nosso código (api_server.py) está em /opt/render/project/src/src/api_server.py
-# A pasta 'data' está em /opt/render/project/src/data/
-# Portanto, o caminho correto é construído a partir da raiz do projeto.
-
-# Pega o diretório do arquivo atual (api_server.py) -> .../src/
-# Sobe um nível para a raiz do projeto -> .../
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EMBEDDINGS_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "manual_embeddings.pkl")
+# --- CAMINHO SIMPLIFICADO PARA O ARQUIVO DE EMBEDDINGS ---
+# Com a pasta 'data' agora dentro de 'src', o caminho se torna relativo e simples.
+# O Gunicorn é executado a partir da raiz do projeto no Render, então o caminho 'src/data/...' funciona.
+EMBEDDINGS_FILE_PATH = "src/data/manual_embeddings.pkl"
 
 print(f"Procurando embeddings em: {EMBEDDINGS_FILE_PATH}")
 

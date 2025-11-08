@@ -12,7 +12,6 @@ def create_and_save_embeddings(pdf_path, output_path):
     Lê um PDF, gera embeddings para seu conteúdo e salva os embeddings e os documentos em um arquivo.
     """
     print("1. Processando o PDF...")
-    # Garante que o PDFProcessor use o caminho correto
     processor = PDFProcessor(pdf_path)
     documents = processor.create_knowledge_base()
     
@@ -23,15 +22,14 @@ def create_and_save_embeddings(pdf_path, output_path):
     print(f"2. PDF processado. {len(documents)} trechos de texto foram criados.")
     
     print("3. Carregando o modelo de embedding ('all-MiniLM-L6-v2')...")
-    # Carrega o modelo leve
     model = SentenceTransformer('all-MiniLM-L6-v2')
     
     print("4. Gerando os embeddings para os trechos de texto...")
-    # Gera os embeddings
     embeddings = model.encode(documents, show_progress_bar=True)
     
     print("5. Salvando os embeddings e os documentos...")
-    # Salva os documentos e seus embeddings em um único arquivo
+    # Garante que o diretório de saída exista
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "wb") as f:
         pickle.dump({'documents': documents, 'embeddings': embeddings}, f)
         
@@ -39,17 +37,15 @@ def create_and_save_embeddings(pdf_path, output_path):
 
 if __name__ == "__main__":
     # Define o caminho para o PDF e onde o arquivo de embeddings será salvo
-    # O PDF está na pasta 'data/manuals' a partir da raiz do projeto
-    pdf_file_path = "data/manuals/Manual-Detalhado-Portal-do-Paciente.pdf"
-    # O arquivo de embeddings será salvo na pasta 'data'
-    output_file_path = "data/manual_embeddings.pkl"
-    
-    # Garante que o caminho do PDF é relativo à raiz do projeto
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    full_pdf_path = os.path.join(project_root, pdf_file_path)
-    full_output_path = os.path.join(project_root, output_file_path)
+    
+    # O PDF continua na pasta 'data' original
+    pdf_file_path = os.path.join(project_root, "data", "manuals", "Manual-Detalhado-Portal-do-Paciente.pdf")
+    
+    # *** O ARQUIVO DE SAÍDA AGORA SERÁ SALVO DENTRO DA PASTA 'src' ***
+    output_file_path = os.path.join(project_root, "src", "data", "manual_embeddings.pkl")
 
-    if not os.path.exists(full_pdf_path):
-        print(f"Erro: O arquivo PDF não foi encontrado em '{full_pdf_path}'")
+    if not os.path.exists(pdf_file_path):
+        print(f"Erro: O arquivo PDF não foi encontrado em '{pdf_file_path}'")
     else:
-        create_and_save_embeddings(full_pdf_path, full_output_path)
+        create_and_save_embeddings(pdf_file_path, output_file_path)
