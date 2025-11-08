@@ -4,7 +4,6 @@ from flask import Flask, request, jsonify
 from src.bots.carelink_bot import CareLinkBot
 
 # --- LEITURA DAS CHAVES A PARTIR DAS VARIÁVEIS DE AMBIENTE ---
-# No Render, você deve configurar estas variáveis no painel do seu serviço
 MARITACA_API_KEY = os.getenv("MARITACA_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -14,13 +13,18 @@ if not MARITACA_API_KEY or not GEMINI_API_KEY:
 # --- CONFIGURAÇÃO E INICIALIZAÇÃO DO BOT ---
 print("Inicializando o CareLinkBot para o servidor API...")
 
-# --- CAMINHO ABSOLUTO E ROBUSTO PARA O ARQUIVO DE EMBEDDINGS ---
-# Isso garante que o caminho funcione, não importa de onde o script seja chamado.
-# 1. Pega o diretório do arquivo atual (src)
-# 2. Sobe um nível para a raiz do projeto
-# 3. Monta o caminho para o arquivo de dados
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# --- CAMINHO ABSOLUTO E ROBUSTO PARA O AMBIENTE DO RENDER ---
+# O Render define o diretório raiz do projeto em /opt/render/project/src
+# O nosso código (api_server.py) está em /opt/render/project/src/src/api_server.py
+# A pasta 'data' está em /opt/render/project/src/data/
+# Portanto, o caminho correto é construído a partir da raiz do projeto.
+
+# Pega o diretório do arquivo atual (api_server.py) -> .../src/
+# Sobe um nível para a raiz do projeto -> .../
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EMBEDDINGS_FILE_PATH = os.path.join(PROJECT_ROOT, "data", "manual_embeddings.pkl")
+
+print(f"Procurando embeddings em: {EMBEDDINGS_FILE_PATH}")
 
 # Instanciamos o bot UMA ÚNICA VEZ quando o servidor inicia.
 bot = CareLinkBot(
@@ -47,7 +51,6 @@ def handle_ask():
 
     print(f"API recebeu a pergunta de '{user_id}': '{question}'")
 
-    # AQUI A MÁGICA ACONTECE:
     # A API simplesmente passa a pergunta para o método do seu bot
     response_text = bot.handle_message(user_id, question)
 
@@ -58,5 +61,4 @@ def handle_ask():
 
 # Roda o servidor
 if __name__ == "__main__":
-    # use host='0.0.0.0' para ser acessível por outras máquinas na mesma rede
     app.run(host='0.0.0.0', port=5000)
